@@ -242,11 +242,11 @@ export default function UserProfile({ initialProfile }) {
 
   return (
     <div>
-      <Card className="max-w-2xl mx-auto">
+      <Card className="max-w-2xl mx-auto pb-24">
         <CardHeader className="text-start space-y-4 py-8 bg-linear-to-r from-emerald-400 to-emerald-600 text-white rounded-t-3xl">
           <div>
             <CardTitle className="text-3xl text-white font-bold">
-              Let's Create Your Safety Profile {user.isSignedIn && user.isLoaded && user.user.firstName}
+              Let&apos;s Create Your Safety Profile {user.isSignedIn && user.isLoaded && user.user.firstName}
             </CardTitle>
             <p className="text-gray-200 text-lg mt-2">
               Personalize your food safety experience

@@ -15,7 +15,7 @@ export const Navigation = () => {
   ];
 
   return (
-    <nav className="bg-white/90 backdrop-blur-md border-t border-emerald-100 sticky bottom-0 z-100">
+    <nav className="bg-white/90 backdrop-blur-md border-t border-emerald-100 fixed w-screen bottom-0 z-100">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {

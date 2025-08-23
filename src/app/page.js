@@ -21,8 +21,10 @@ import {
 const Home = () => {
   // const { user, isProfileComplete, scanHistory } = useUser();
   const user = useUser();
+  const userId = user?.user?.id
   const isProfileComplete = false;
   const [dbUser, setDbUser] = useState(null);
+  const [scans, setScans] = useState([]);
   const clerkId = user?.user?.id;
   useEffect(() => {
     if (!clerkId) return;
@@ -43,15 +45,36 @@ const Home = () => {
     fetchUser();
   }, [clerkId]);
 
+  useEffect(() => {
+      if (!userId) return;
+  
+      async function fetchScans() {
+        try {
+          const res = await fetch(`/api/getscans?userId=${userId}`);
+          const data = await res.json();
+  
+          if (res.ok) setScans(data.scans);
+          else console.error("Error:", data.error);
+        } catch (err) {
+          console.error("Fetch error:", err);
+        } finally {
+          setLoading(false);
+          console.log(user.user.id);
+        }
+      }
+  
+      fetchScans();
+    }, [userId]);
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-4 pt-8 pb-24">
       {/* Hero Section */}
       <div className="text-center mb-8">
         <div className="bg-gradient-to-br from-emerald-500 to-teal-600 w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center">
           <Shield className="h-10 w-10 text-white" />
         </div>
         <h1 className="text-4xl font-bold text-slate-800 mb-4">
-          Welcome to{" "}
+          Hii {user?.user?.firstName}, Welcome to{" "}
           <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
             SafeEats
           </span>
@@ -66,7 +89,7 @@ const Home = () => {
       {dbUser && (
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center border border-emerald-100">
-            <div className="text-2xl font-bold text-emerald-600">x</div>
+            <div className="text-2xl font-bold text-emerald-600">{scans.length}</div>
             <div className="text-sm text-slate-600">Scans</div>
           </div>
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center border border-emerald-100">
@@ -109,7 +132,7 @@ const Home = () => {
         )}
 
         <Link
-          href="/scanner"
+          href="/scan"
           className="group bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 border border-emerald-200 hover:from-emerald-100 hover:to-teal-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
         >
           <div className="flex items-center space-x-4">

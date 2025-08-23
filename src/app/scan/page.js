@@ -23,7 +23,7 @@ import { useUser } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 export default function Scanner() {
-  const [scannedProduct, setScannedProduct] = useState(null);
+  const [scannedProduct, setScannedProduct] = useState({});
   const [manualBarcode, setManualBarcode] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +32,7 @@ export default function Scanner() {
 
   const [scans, setScans] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [suggestedItems, setSuggestedItems] = useState([]);
 
   const user = useUser();
   const userId = user?.user?.id;
@@ -64,26 +65,89 @@ export default function Scanner() {
     }
   }, [barcode]);
 
-  useEffect(() => {
-    if (!userId) return;
+  // useEffect(() => {
+  //   if (!userId || !scannedProduct?.categories?.[0]) {
+  //     setLoading(false); // Reset loading if no userId or category
+  //     return;
+  //   }
 
-    async function fetchScans() {
-      try {
-        const res = await fetch(`/api/getscans?userId=${userId}`);
-        const data = await res.json();
+  //   console.log(scannedProduct?.categories?.[0]);
+  //   async function fetchSuggestions() {
+  //     setLoading(true); // Set loading when starting fetch
+  //     try {
+  //       const res = await fetch(`/api/suggestions?userId=${userId}`, {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify({
+  //           category: scannedProduct.categories[0].toLowerCase().trim(),
+  //         }),
+  //       });
+  //       const data = await res.json();
 
-        if (res.ok) setScans(data.scans);
-        else console.error("Error:", data.error);
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-        console.log(user.user.id);
+  //       if (res.ok) {
+  //         console.log("Received suggestions:", data); // Debug log
+  //         setSuggestedItems(data.products);
+  //       } else {
+  //         console.error("API Error:", data.error);
+  //         setError(data.error);
+  //       }
+  //     } catch (err) {
+  //       console.error("Fetch error:", err);
+  //       setError("Failed to load suggestions");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+
+  //   fetchSuggestions();
+  // }, [scannedProduct?.categories, userId]);
+
+  const handleSuggestions = async () => {
+    setLoading(true); // Set loading when starting fetch
+    try {
+      const res = await fetch(`/api/suggestions?userId=${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: scannedProduct?.categories[0]?.toLowerCase().trim(),
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log("Received suggestions:", data); // Debug log
+        setSuggestedItems(data.products);
+      } else {
+        console.error("API Error:", data.error);
+        setError(data.error);
       }
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Failed to load suggestions");
+    } finally {
+      setLoading(false);
     }
+  };
+  // useEffect(() => {
+  //   if (!userId) return;
 
-    fetchScans();
-  }, [userId]);
+  //   async function fetchSuggestions() {
+  //     try {
+  //       const res = await fetch(`/api/suggestions?userId=${userId}`);
+  //       const data = await res.json();
+
+  //       if (res.ok) setScans(data.scans);
+  //       else console.error("Error:", data.error);
+  //     } catch (err) {
+  //       console.error("Fetch error:", err);
+  //     } finally {
+  //       setLoading(false);
+  //       console.log(user.user.id);
+  //     }
+  //   }
+
+  //   fetchScans();
+  // }, [userId]);
 
   // if (loading) {
   //   return (
@@ -99,9 +163,9 @@ export default function Scanner() {
   }
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="max-w-2xl mx-auto p-6 pb-24 space-y-6 animate-fade-in">
       {/* Scanner Controls */}
-      <Card className="w-full bg-white/90 backdrop-blur-lg shadow-floating border-white/20">
+      <Card className="w-full bg-white/90">
         <CardHeader className="text-center pb-4">
           {isScannerOpen ? (
             <BarcodeScanner onScan={onScan} />
@@ -171,34 +235,42 @@ export default function Scanner() {
         </CardContent>
       </Card>
 
-      {scans && (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Previous Scans</h2>
-          {scans?.length === 0 ? (
-            <p className="text-sm text-gray-600">No scans found.</p>
-          ) : (
-            scans?.map((scan) => (
-              <Card key={scan._id} className="shadow-sm">
-                <CardHeader>
-                  <CardTitle className="text-base font-medium">
-                    {scan.productName || "Unnamed Product"} ({scan.barcode})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>
-                    Status: <b>{scan.analysisResult.status}</b>
-                  </p>
-                  <p>Reason: {scan.analysisResult.reason}</p>
-                  <p>NutriScore: {scan.nutriscore || "N/A"}</p>
-                  <p className="text-xs text-gray-500 mt-2">
-                    Scanned on {new Date(scan.createdAt).toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      )}
+      {error ? (
+        <Alert className="border-red-200 bg-red-50">
+          <AlertTriangle className="h-5 w-5 text-red-500" />
+          <AlertDescription className="text-red-700 font-medium">
+            {error}
+          </AlertDescription>
+        </Alert>
+      ) : loading ? (
+        <Card className="w-full bg-white/90">
+          <CardContent className="flex items-center justify-center gap-2 py-8">
+            <Loader2 className="animate-spin w-5 h-5 text-emerald-600" />
+            <span>Loading suggestions...</span>
+          </CardContent>
+        </Card>
+      ) : suggestedItems.length > 0 ? (
+        <Card className="w-full bg-white/90">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-emerald-500" />
+              Suggested Alternatives ({suggestedItems.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {suggestedItems.map((item, index) => (
+                <li
+                  key={index}
+                  className="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                >
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : null}
       {/* Error Display */}
       {error && (
         <Alert className="border-red-200 bg-red-50 animate-slide-up">
@@ -214,6 +286,7 @@ export default function Scanner() {
         <>
           <div className="animate-slide-up">
             <ProductAnalysis scan={scannedProduct} />
+            <button onClick={handleSuggestions}>Show alternatives</button>
           </div>
           <Card className="w-full bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200">
             <CardContent className="pt-6">
