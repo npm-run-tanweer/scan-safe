@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -49,17 +49,54 @@ const commonAllergies = [
   "Sulfites",
 ];
 
-export default function UserProfile({ initialProfile }) {
-  const user = useUser();
-  const [profile, setProfile] = useState({
-    name: initialProfile?.name || "",
-    age: initialProfile?.age || 0,
-    region: initialProfile?.region || "",
-    allergies: initialProfile?.allergies || [],
-    conditions: initialProfile?.conditions || [],
-    dietaryPreference: initialProfile?.dietaryPreference || "non-vegan",
-    allergyLevel: initialProfile?.allergyLevel || "moderate",
-  });
+export default function UserProfile() {
+
+    const [initialProfile, setInitialProfile] = useState(null);
+    const user = useUser();
+    const clerkId = user?.user?.id;
+    useEffect(() => {
+      if (!clerkId) return;
+  
+      const fetchUser = async () => {
+        try {
+          const res = await fetch(`/api/users?clerkId=${clerkId}`);
+          if (!res.ok) throw new Error("Failed to fetch user");
+          const data = await res.json();
+          console.log(data)
+          setInitialProfile(data);
+        } catch (err) {
+          console.error("Error fetching user:", err);
+        } 
+      };
+  
+      fetchUser();
+      // console.log("Profile   ", initialProfile)/
+    }, [clerkId]);
+  
+const [profile, setProfile] = useState({
+  name: "",
+  age: 0,
+  region: "",
+  allergies: [],
+  conditions: [],
+  dietaryPreference: "non-vegan",
+  allergyLevel: "moderate",
+});
+
+useEffect(() => {
+  if (initialProfile) {
+    setProfile({
+      name: initialProfile.name || "",
+      age: initialProfile.age || 0,
+      region: initialProfile.region || "",
+      allergies: initialProfile.allergens || [],
+      conditions: initialProfile.conditions || [],
+      dietaryPreference: initialProfile.dietaryPreference || "non-vegan",
+      allergyLevel: initialProfile.allergyLevel || "moderate",
+    });
+  }
+}, [initialProfile]);
+
 
   const [customAllergy, setCustomAllergy] = useState("");
   const router = useRouter();
