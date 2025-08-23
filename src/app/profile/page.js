@@ -49,17 +49,6 @@ const commonAllergies = [
   "Sulfites",
 ];
 
-const medicalConditions = [
-  "Diabetes",
-  "Celiac Disease",
-  "Lactose Intolerance",
-  "Anemia",
-  "High Blood Pressure",
-  "Heart Disease",
-  "Kidney Disease",
-  "None",
-];
-
 export default function UserProfile({ initialProfile }) {
   const user = useUser();
   const [profile, setProfile] = useState({
@@ -161,7 +150,7 @@ export default function UserProfile({ initialProfile }) {
       });
       router.push(`/scan`);
     } else {
-      alert("User saving patient");
+      alert("User not saved");
       console.log(e);
     }
   };
@@ -178,23 +167,89 @@ export default function UserProfile({ initialProfile }) {
     }
   }, []);
 
+  const medicalConditions = [
+    {
+      name: "Diabetes",
+      description:
+        "A condition where the body struggles to regulate blood sugar.",
+      restrictedFoods: [
+        "Sugary drinks",
+        "White bread",
+        "Pastries",
+        "Candy",
+        "Processed snacks",
+      ],
+    },
+    {
+      name: "Celiac Disease",
+      description: "An autoimmune reaction to eating gluten.",
+      restrictedFoods: ["Wheat", "Barley", "Rye", "Pasta", "Bread with gluten"],
+    },
+    {
+      name: "Lactose Intolerance",
+      description: "The body cannot properly digest lactose found in dairy.",
+      restrictedFoods: ["Milk", "Cheese", "Butter", "Cream", "Ice cream"],
+    },
+    {
+      name: "Anemia",
+      description: "A condition where the body lacks healthy red blood cells.",
+      restrictedFoods: [
+        "Tea",
+        "Coffee",
+        "Excess dairy",
+        "High-calcium foods with iron meals",
+      ],
+    },
+    {
+      name: "High Blood Pressure",
+      description: "Also called hypertension, where blood pressure stays high.",
+      restrictedFoods: [
+        "Salty foods",
+        "Pickles",
+        "Chips",
+        "Processed meats",
+        "Canned soups",
+      ],
+    },
+    {
+      name: "Heart Disease",
+      description: "A condition affecting the heart and blood vessels.",
+      restrictedFoods: [
+        "Fried foods",
+        "Trans fats",
+        "Processed meats",
+        "Sugary drinks",
+      ],
+    },
+    {
+      name: "Kidney Disease",
+      description: "A condition where kidneys cannot filter waste properly.",
+      restrictedFoods: [
+        "High-sodium foods",
+        "Bananas",
+        "Oranges",
+        "Dairy",
+        "Red meat",
+        "Beans",
+      ],
+    },
+    {
+      name: "None",
+      description: "No medical conditions affecting diet.",
+      restrictedFoods: [],
+    },
+  ];
+
   return (
     <div>
-      <p className="text-xl text-center font-bold mb-4">
-        {user.isSignedIn && user.isLoaded && user.user.firstName}{" "}
-      </p>
-      <Card className="w-full bg-white/90 backdrop-blur-lg shadow-floating border-white/20 animate-slide-up">
-        <CardHeader className="text-center space-y-4 pb-6">
-          <div className="w-16 h-16  bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto">
-            <User className="w-8 h-8 text-white" />
-          </div>
+      <Card className="max-w-2xl mx-auto">
+        <CardHeader className="text-start space-y-4 py-8 bg-linear-to-r from-emerald-400 to-emerald-600 text-white rounded-t-3xl">
           <div>
-            <CardTitle className="text-2xl font-bold text-slate-800">
-              Create Your Safety Profile
+            <CardTitle className="text-3xl text-white font-bold">
+              Let's Create Your Safety Profile {user.isSignedIn && user.isLoaded && user.user.firstName}
             </CardTitle>
-            <p className="text-slate-600 mt-2">
-              Tell us about your allergies and health conditions so we can keep
-              you safe
+            <p className="text-gray-200 text-lg mt-2">
+              Personalize your food safety experience
             </p>
           </div>
         </CardHeader>
@@ -204,8 +259,8 @@ export default function UserProfile({ initialProfile }) {
             {/* Basic Info Section */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-lg flex items-center justify-center">
-                  <User className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                  <User className="w-6 h-6" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-800">
                   Basic Information
@@ -215,7 +270,7 @@ export default function UserProfile({ initialProfile }) {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="name" className="text-slate-700 font-medium">
-                    Full Name
+                    Name
                   </Label>
                   <Input
                     id="name"
@@ -283,8 +338,8 @@ export default function UserProfile({ initialProfile }) {
             {/* Allergies Section */}
             <div className="space-y-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-r from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
-                  <AlertTriangle className="w-4 h-4 text-white" />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+                  <AlertTriangle stroke="red" className="w-6 h-6" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-800">
                   Food Allergies
@@ -304,7 +359,7 @@ export default function UserProfile({ initialProfile }) {
                       key={allergy}
                       className={`flex items-center space-x-3 p-3 rounded-lg border transition-all duration-200 ${
                         isSelected
-                          ? "bg-red-50 border-red-200 shadow-sm"
+                          ? "bg-red-50 border-red-300 text-red-500 shadow-sm"
                           : "bg-white border-slate-200 hover:border-red-200"
                       }`}
                     >
@@ -318,7 +373,7 @@ export default function UserProfile({ initialProfile }) {
                       />
                       <Label
                         htmlFor={`allergy-${allergy}`}
-                        className="text-sm font-medium cursor-pointer"
+                        className="text-base font-medium cursor-pointer"
                       >
                         {allergy}
                       </Label>
@@ -394,30 +449,34 @@ export default function UserProfile({ initialProfile }) {
 
               <div className="space-y-3">
                 {medicalConditions.map((condition) => {
-                  const isSelected = profile.conditions.includes(condition);
+                  const isSelected = profile.conditions.includes(
+                    condition.name
+                  );
+
                   return (
                     <div
-                      key={condition}
-                      className={`flex items-center space-x-3 p-3 rounded-lg border transition-all duration-200 ${
+                      key={condition.name}
+                      className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? "bg-blue-50 border-blue-200 shadow-sm"
                           : "bg-white border-slate-200 hover:border-blue-200"
                       }`}
+                      onClick={() =>
+                        setConditionChecked(condition.name, !isSelected)
+                      }
                     >
-                      <Checkbox
-                        id={`condition-${condition}`}
-                        checked={isSelected}
-                        onCheckedChange={(checked) =>
-                          setConditionChecked(condition, Boolean(checked))
-                        }
-                        className="border-2"
-                      />
-                      <Label
-                        htmlFor={`condition-${condition}`}
-                        className="text-sm font-medium cursor-pointer"
-                      >
-                        {condition}
-                      </Label>
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {condition.name}
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {condition.description}
+                      </p>
+                      {condition.restrictedFoods?.length > 0 && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          <span className="font-medium">Restricts:</span>{" "}
+                          {condition.restrictedFoods.join(", ")}
+                        </p>
+                      )}
                     </div>
                   );
                 })}
@@ -449,7 +508,7 @@ export default function UserProfile({ initialProfile }) {
                       }))
                     }
                   >
-                    <SelectTrigger className="mt-2 bg-white/80 border-slate-200 focus:border-emerald-400">
+                    <SelectTrigger className="mt-2 bg-white/80 border-slate-200 focus:border-emerald-400 w-full">
                       <SelectValue placeholder="Select diet" />
                     </SelectTrigger>
                     <SelectContent>
@@ -472,7 +531,7 @@ export default function UserProfile({ initialProfile }) {
                       }))
                     }
                   >
-                    <SelectTrigger className="mt-2 bg-white/80 border-slate-200 focus:border-emerald-400">
+                    <SelectTrigger className="mt-2 bg-white/80 border-slate-200 focus:border-emerald-400 w-full">
                       <SelectValue placeholder="Select severity" />
                     </SelectTrigger>
                     <SelectContent>
@@ -504,7 +563,7 @@ export default function UserProfile({ initialProfile }) {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-emerald-400 to-blue-500 text-white font-semibold py-4 text-lg shadow-card hover:shadow-floating transition-all duration-300 hover:-translate-y-1"
+              className="w-full bg-gradient-to-r from-emerald-400 to-blue-500 text-white font-semibold py-4 text-lg shadow-card hover:shadow-floating transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
               {initialProfile
                 ? "✨ Update Profile"
