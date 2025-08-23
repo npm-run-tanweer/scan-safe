@@ -188,7 +188,8 @@ export function UserProfileForm({ initialProfile }) {
               Create Your Safety Profile
             </CardTitle>
             <p className="text-slate-600 mt-2">
-              Personalize your food safety experience
+              Tell us about your allergies and health conditions so we can keep
+              you safe
             </p>
           </div>
         </CardHeader>
