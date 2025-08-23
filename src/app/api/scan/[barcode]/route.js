@@ -13,7 +13,7 @@ export async function GET(req, { params }) {
     const clerkId = searchParams.get("user");
     console.log(clerkId)
 
-   if (!clerkId) {
+    if (!clerkId) {
       return NextResponse.json({ error: "Missing clerkId" }, { status: 400 });
     }
 
@@ -43,6 +43,7 @@ export async function GET(req, { params }) {
     const productObj = {
       name: product.product_name,
       brand: product.brands,
+      category: product.categories, 
       ingredients: product.ingredients_text,
       allergens: product.allergens_tags,
       nutriments: {
