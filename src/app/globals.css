@@ -15,6 +15,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* --heading-primary:rgb(30 41 59);
+  --heading-secondary:rgb(9 149 119);
+  --text-primary:rgb(30 41 59);
+  --text-secondary:rgb(100 116 139);
+  --bg-secondary:rgb(239 246 255);
+  --bg-success:rgb(209 250 229);
+  --bg-danger:rgb(254 226 226);
+  --bg-warning:rgb(255 247 237); */
+
 }
 
 @media (prefers-color-scheme: light) {
