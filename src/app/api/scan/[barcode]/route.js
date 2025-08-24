@@ -134,12 +134,15 @@ export async function GET(req, { params }) {
     }
 
     // console.log("HEH ........ ",geminiJson)
+    const categories = product.categories_tags.map(tag => tag.replace(/^en:/, ""));
+    // console.log("DeBug :::: " ,categories)
     const newScan = await Scan.create({
       userId:user._id,
       barcode,
       productName: product.product_name,
       brand: product.brands,
       nutriscore: product.nutriscore_grade,
+      categories:categories,
       analysisResult: {
         status: geminiJson.status,
         reason: geminiJson.reason,

@@ -23,7 +23,7 @@ import { useUser } from "@clerk/nextjs";
 import { Loader2 } from "lucide-react";
 import { Button } from "../components/ui/button";
 export default function Scanner() {
-  const [scannedProduct, setScannedProduct] = useState({});
+  const [scannedProduct, setScannedProduct] = useState(null);
   const [manualBarcode, setManualBarcode] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +31,7 @@ export default function Scanner() {
   const [barcode, setBarcode] = useState("");
 
   const [scans, setScans] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [suggestedItems, setSuggestedItems] = useState([]);
 
   const user = useUser();
@@ -104,12 +104,13 @@ export default function Scanner() {
 
   const handleSuggestions = async () => {
     setLoading(true); // Set loading when starting fetch
+    // console.log(scannedProduct?.categories)
     try {
       const res = await fetch(`/api/suggestions?userId=${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          category: scannedProduct?.categories[0]?.toLowerCase().trim(),
+          category: scannedProduct?.categories[0]
         }),
       });
       const data = await res.json();
@@ -128,35 +129,6 @@ export default function Scanner() {
       setLoading(false);
     }
   };
-  // useEffect(() => {
-  //   if (!userId) return;
-
-  //   async function fetchSuggestions() {
-  //     try {
-  //       const res = await fetch(`/api/suggestions?userId=${userId}`);
-  //       const data = await res.json();
-
-  //       if (res.ok) setScans(data.scans);
-  //       else console.error("Error:", data.error);
-  //     } catch (err) {
-  //       console.error("Fetch error:", err);
-  //     } finally {
-  //       setLoading(false);
-  //       console.log(user.user.id);
-  //     }
-  //   }
-
-  //   fetchScans();
-  // }, [userId]);
-
-  // if (loading) {
-  //   return (
-  //     <div className="flex items-center gap-2">
-  //       <Loader2 className="animate-spin w-5 h-5 text-emerald-600" />
-  //       <span>Loading scans...</span>
-  //     </div>
-  //   );
-  // }
 
   if (isLoading) {
     return <LoadResult />;
@@ -264,7 +236,8 @@ export default function Scanner() {
                   key={index}
                   className="p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
                 >
-                  {item}
+                  {item.name}
+                  {item.nutriscore}
                 </li>
               ))}
             </ul>
@@ -286,7 +259,7 @@ export default function Scanner() {
         <>
           <div className="animate-slide-up">
             <ProductAnalysis scan={scannedProduct} />
-            <button onClick={handleSuggestions}>Show alternatives</button>
+            <Button onClick={handleSuggestions}>Show alternatives</Button>
           </div>
           <Card className="w-full bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200">
             <CardContent className="pt-6">
@@ -296,7 +269,7 @@ export default function Scanner() {
                 </h4>
                 <div className="flex gap-3">
                   <Button
-                    onClick={() => setIsScannerOpen(true)}
+                    onClick={() => setIsScannerOpen(true)}  
                     variant="outline"
                     className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                   >

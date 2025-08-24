@@ -12,6 +12,7 @@ const ScanSchema = new Schema(
     productName: { type: String },
     brand: { type: String },
     nutriscore: { type: String }, // product grade
+    categories: [{type:String}],
     analysisResult: {
       status: {
         type: String,
