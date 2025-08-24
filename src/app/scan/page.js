@@ -39,7 +39,7 @@ export default function Scanner() {
   async function handleScan(barcode) {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/scan/${barcode}.json?user=${userId}`
+        `${process.env.PROD_URL}api/scan/${barcode}.json?user=${userId}`
       );
 
       if (!res.ok) {
