@@ -34,6 +34,7 @@ export default function Scanner() {
   const [loading, setLoading] = useState(false);
   const [suggestedItems, setSuggestedItems] = useState([]);
 
+  const [showWarning, setShowWaring] = useState(false)
   const user = useUser();
   const userId = user?.user?.id;
   async function handleScan(barcode) {
@@ -110,7 +111,7 @@ export default function Scanner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          category: scannedProduct?.categories[0]
+          category: scannedProduct?.categories[0],
         }),
       });
       const data = await res.json();
@@ -118,6 +119,9 @@ export default function Scanner() {
       if (res.ok) {
         console.log("Received suggestions:", data); // Debug log
         setSuggestedItems(data.products);
+        if(data.products?.length == 0) {
+          setShowWaring(true)
+        }
       } else {
         console.error("API Error:", data.error);
         setError(data.error);
@@ -207,6 +211,18 @@ export default function Scanner() {
         </CardContent>
       </Card>
 
+      {/* Product Analysis */}
+      {scannedProduct && (
+        <>
+          <div className="animate-slide-up">
+            <ProductAnalysis scan={scannedProduct} />
+            <div className="w-full flex justify-center item-centers">
+              <Button onClick={handleSuggestions}>Show alternatives</Button>
+            </div>
+          </div>
+        </>
+      )}
+
       {error ? (
         <Alert className="border-red-200 bg-red-50">
           <AlertTriangle className="h-5 w-5 text-red-500" />
@@ -243,7 +259,8 @@ export default function Scanner() {
             </ul>
           </CardContent>
         </Card>
-      ) : null}
+      ) : ( showWarning  &&
+      <div className="p-4 border-1 text-center border-amber-200 bg-amber-100 text-amber-950 rounded-md">Products similar to these are harmful for you!</div>)}
       {/* Error Display */}
       {error && (
         <Alert className="border-red-200 bg-red-50 animate-slide-up">
@@ -254,45 +271,39 @@ export default function Scanner() {
         </Alert>
       )}
 
-      {/* Product Analysis */}
-      {scannedProduct && (
-        <>
-          <div className="animate-slide-up">
-            <ProductAnalysis scan={scannedProduct} />
-            <Button onClick={handleSuggestions}>Show alternatives</Button>
+      <Card className="w-full bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200">
+        <CardContent className="pt-6">
+          <div className="text-center space-y-4">
+            <h4 className="font-semibold text-slate-800">
+              Ready to scan another product?
+            </h4>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setIsScannerOpen(true)}
+                variant="outline"
+                className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                Scan Again
+              </Button>
+              <Button
+                onClick={() => {
+                  setScannedProduct(null);
+                  setBarcode("")
+                  setManualBarcode("")
+                  setShowWaring(false)
+                  setError("");
+                }}
+                variant="outline"
+                className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                <Target className="w-4 h-4 mr-2" />
+                Clear Results
+              </Button>
+            </div>
           </div>
-          <Card className="w-full bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-200">
-            <CardContent className="pt-6">
-              <div className="text-center space-y-4">
-                <h4 className="font-semibold text-slate-800">
-                  Ready to scan another product?
-                </h4>
-                <div className="flex gap-3">
-                  <Button
-                    onClick={() => setIsScannerOpen(true)}  
-                    variant="outline"
-                    className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                  >
-                    <Camera className="w-4 h-4 mr-2" />
-                    Scan Again
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setScannedProduct(null);
-                      setError("");
-                    }}
-                    variant="outline"
-                    className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
-                  >
-                    <Target className="w-4 h-4 mr-2" />
-                    Clear Results
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

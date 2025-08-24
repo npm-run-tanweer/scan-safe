@@ -19,6 +19,7 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import Auth from "./components/Auth";
+import { PageLoader } from "./components/Loader";
 const Home = () => {
   // const { user, isProfileComplete, scanHistory } = useUser();
   const user = useUser();
@@ -26,11 +27,13 @@ const Home = () => {
   const isProfileComplete = false;
   const [dbUser, setDbUser] = useState(null);
   const [scans, setScans] = useState([]);
+  const [pageLoader, setPageLoader] = useState(false)
   const clerkId = user?.user?.id;
   useEffect(() => {
     if (!clerkId) return;
 
     const fetchUser = async () => {
+      setPageLoader(true)
       try {
         const res = await fetch(`/api/users?clerkId=${clerkId}`);
         if (!res.ok) throw new Error("Failed to fetch user");
@@ -39,7 +42,7 @@ const Home = () => {
       } catch (err) {
         console.error("Error fetching user:", err);
       } finally {
-        setLoading(false);
+        setPageLoader(false)
       }
     };
 
@@ -59,7 +62,6 @@ const Home = () => {
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
-        setLoading(false);
         console.log(user.user.id);
       }
     }
@@ -67,6 +69,9 @@ const Home = () => {
     fetchScans();
   }, [userId]);
 
+  if(pageLoader) {
+    return <PageLoader/>
+  }
   return user.isSignedIn ? (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-24">
       {/* Hero Section */}

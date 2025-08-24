@@ -43,7 +43,7 @@ export const LoadPage = () => {
   </div>
 }
 
-export const PageLoader = ({text}) => {
+export const PageLoader = ({text = "Loading..."}) => {
   return (
     <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
       {/* Spinning Icon */}
