@@ -36,6 +36,8 @@ import {
   useUser,
 } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+
+import { MiniLoader, PageLoader } from "../components/Loader";
 const commonAllergies = [
   "Peanuts",
   "Tree nuts",
@@ -52,12 +54,15 @@ const commonAllergies = [
 export default function UserProfile() {
 
     const [initialProfile, setInitialProfile] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [pageLoader, setPageLoader] = useState(false)
     const user = useUser();
     const clerkId = user?.user?.id;
     useEffect(() => {
       if (!clerkId) return;
   
       const fetchUser = async () => {
+        setPageLoader(true)
         try {
           const res = await fetch(`/api/users?clerkId=${clerkId}`);
           if (!res.ok) throw new Error("Failed to fetch user");
@@ -66,7 +71,9 @@ export default function UserProfile() {
           setInitialProfile(data);
         } catch (err) {
           console.error("Error fetching user:", err);
-        } 
+        } finally{
+          setPageLoader(false)
+        }
       };
   
       fetchUser();
@@ -153,6 +160,8 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setLoading(true);
+
     if (!user) return alert("Please sign in first");
     // if (profile.name && profile.age > 0) onSave(profile);
 
@@ -190,6 +199,7 @@ useEffect(() => {
       alert("User not saved");
       console.log(e);
     }
+    setLoader(false)
   };
   const getSeverityColor = useCallback((severity) => {
     switch (severity) {
@@ -204,6 +214,12 @@ useEffect(() => {
     }
   }, []);
 
+
+  if(pageLoader) {
+    return (
+      <PageLoader text="Loading Your Profile..."/>
+    )
+  }
   const medicalConditions = [
     {
       name: "Diabetes",
@@ -572,9 +588,9 @@ useEffect(() => {
                       <SelectValue placeholder="Select severity" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="mild">😌 Mild</SelectItem>
-                      <SelectItem value="moderate">😐 Moderate</SelectItem>
-                      <SelectItem value="severe">😰 Severe</SelectItem>
+                      <SelectItem value="mild">Mild</SelectItem>
+                      <SelectItem value="moderate">Moderate</SelectItem>
+                      <SelectItem value="severe">Severe</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -602,9 +618,10 @@ useEffect(() => {
               type="submit"
               className="w-full bg-gradient-to-r from-emerald-400 to-blue-500 text-white font-semibold py-4 text-lg shadow-card hover:shadow-floating transition-all duration-300 hover:-translate-y-1 cursor-pointer"
             >
+              {loading && <MiniLoader/>}
               {initialProfile
-                ? "✨ Update Profile"
-                : "🚀 Save Profile & Start Scanning"}
+                ? "Update Profile"
+                : "Save Profile & Start Scanning"}
             </Button>
           </form>
         </CardContent>

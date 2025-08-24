@@ -15,16 +15,18 @@ import {
   Package,
   XCircle,
 } from "lucide-react";
+import { PageLoader } from "../components/Loader";
 
 const Page = () => {
   const user = useUser();
   const userId = user?.user?.id;
   const [scans, setScans] = useState([]);
-
+  const [pageLoader, setPageLoader] = useState(false)
   useEffect(() => {
     if (!userId) return;
 
     async function fetchScans() {
+      setPageLoader(true)
       try {
         const res = await fetch(`/api/getscans?userId=${userId}`);
         const data = await res.json();
@@ -34,13 +36,19 @@ const Page = () => {
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
-        setLoading(false);
+        setPageLoader(false);
         console.log(user.user.id);
       }
     }
 
     fetchScans();
   }, [userId]);
+
+  if(pageLoader) {
+    return(
+      <PageLoader text="Loading Yours Scans..."/>
+    )
+  }
   return (
     <div className="max-w-2xl mx-auto py-12 pb-24">
       {scans && (
@@ -49,7 +57,9 @@ const Page = () => {
             <History className="w-10 h-10" />
             <div>
               <h2 className="text-4xl font-semibold">Scan History</h2>
-              <p className="text-base text-gray-300">{scans?.length} total scans</p>
+              <p className="text-base text-gray-300">
+                {scans?.length} total scans
+              </p>
             </div>
           </div>
           {scans?.length === 0 ? (
@@ -103,14 +113,32 @@ const Page = () => {
                     >
                       {scan.analysisResult.status === "unsafe" ? (
                         <XCircle className="w-4 h-4" />
-                      ) : (
+                      ) : scan.analysisResult.status?.toLowerCase() !=
+                        "unknown" ? (
                         <CircleCheck className="w-4 h-4" />
+                      ) : (
+                        ""
                       )}
-                      {scan.analysisResult.status}
+                      {scan.analysisResult.status?.toLowerCase() != "unknown" &&
+                        scan.analysisResult.status}
                     </div>
 
-                    <div className="text-orange-700 bg-orange-100 px-2 py-0.5 rounded-full text-xs font-semibold">
-                      {scan.analysisResult.score}
+                    <div
+                      className={`${
+                        scan.analysisResult.score < 5
+                          ? "text-red-700 bg-red-100"
+                          : scan.analysisResult.score >= 5 &&
+                            scan.analysisResult.score < 8
+                          ? "text-yellow-700 bg-yellow-100"
+                          : ""
+                      } px-2 py-0.5 rounded-full text-xs font-semibold`}
+                    >
+                      {scan.analysisResult.score < 5
+                        ? "high risk"
+                        : scan.analysisResult.score >= 5 &&
+                          scan.analysisResult.score < 8
+                        ? "low risk"
+                        : ""}
                     </div>
                   </div>
                 </div>
