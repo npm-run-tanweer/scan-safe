@@ -6,7 +6,7 @@
 //           <SignInButton forceRedirectUrl="/profile" />
 //         </SignedOut>
 //       </div>
-"use client"
+"use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 // import { useUser } from '../context/UserContext';
@@ -18,10 +18,11 @@ import {
   SignOutButton,
   useUser,
 } from "@clerk/nextjs";
+import Auth from "./components/Auth";
 const Home = () => {
   // const { user, isProfileComplete, scanHistory } = useUser();
   const user = useUser();
-  const userId = user?.user?.id
+  const userId = user?.user?.id;
   const isProfileComplete = false;
   const [dbUser, setDbUser] = useState(null);
   const [scans, setScans] = useState([]);
@@ -46,27 +47,27 @@ const Home = () => {
   }, [clerkId]);
 
   useEffect(() => {
-      if (!userId) return;
-  
-      async function fetchScans() {
-        try {
-          const res = await fetch(`/api/getscans?userId=${userId}`);
-          const data = await res.json();
-  
-          if (res.ok) setScans(data.scans);
-          else console.error("Error:", data.error);
-        } catch (err) {
-          console.error("Fetch error:", err);
-        } finally {
-          setLoading(false);
-          console.log(user.user.id);
-        }
-      }
-  
-      fetchScans();
-    }, [userId]);
+    if (!userId) return;
 
-  return (
+    async function fetchScans() {
+      try {
+        const res = await fetch(`/api/getscans?userId=${userId}`);
+        const data = await res.json();
+
+        if (res.ok) setScans(data.scans);
+        else console.error("Error:", data.error);
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+        console.log(user.user.id);
+      }
+    }
+
+    fetchScans();
+  }, [userId]);
+
+  return user.isSignedIn ? (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-24">
       {/* Hero Section */}
       <div className="text-center mb-8">
@@ -76,7 +77,7 @@ const Home = () => {
         <h1 className="text-4xl font-bold text-slate-800 mb-4">
           Hii {user?.user?.firstName}, Welcome to{" "}
           <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-            SafeEats
+            Scan&Safe
           </span>
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto">
@@ -89,7 +90,9 @@ const Home = () => {
       {dbUser && (
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center border border-emerald-100">
-            <div className="text-2xl font-bold text-emerald-600">{scans.length}</div>
+            <div className="text-2xl font-bold text-emerald-600">
+              {scans.length}
+            </div>
             <div className="text-sm text-slate-600">Scans</div>
           </div>
           <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 text-center border border-emerald-100">
@@ -154,7 +157,7 @@ const Home = () => {
       {/* Features */}
       <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 border border-emerald-100 mb-8">
         <h2 className="text-2xl font-bold text-slate-800 mb-6 text-center">
-          Why Choose SafeEats?
+          Why Choose Scan&Safe?
         </h2>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="text-center">
@@ -225,6 +228,8 @@ const Home = () => {
         </div>
       )} */}
     </div>
+  ) : (
+    <Auth />
   );
 };
 
