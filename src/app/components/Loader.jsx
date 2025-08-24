@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/app/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2} from "lucide-react";
 import React from "react";
 
 export const LoadResult = () => {
@@ -35,3 +35,31 @@ export const LoadResult = () => {
     </div>
   );
 };
+
+
+export const LoadPage = () => {
+  return <div>  
+    loading page ...
+  </div>
+}
+
+export const PageLoader = ({text}) => {
+  return (
+    <div className="h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+      {/* Spinning Icon */}
+      <div className="p-4 bg-white rounded-full shadow-lg animate-spin-slow">
+        <Loader2 className="w-10 h-10 text-emerald-600" />
+      </div>
+
+      {/* Loading Text */}
+      <p className="mt-6 text-lg font-semibold text-gray-700 animate-pulse">
+        {text}
+      </p>
+    </div>
+  );
+}
+
+
+export function MiniLoader() {
+  return <Loader2 className="w-4 h-4 animate-spin-slow" />;
+}
