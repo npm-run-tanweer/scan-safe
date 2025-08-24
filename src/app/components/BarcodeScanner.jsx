@@ -6,7 +6,28 @@ export default function BarcodeScanner({ onScan }) {
   const scannerRef = useRef(null);
   const [result, setResult] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
-  // --- Live Camera Scanner ---
+  const [hasCamera, setHasCamera] = useState(false);
+
+  // ✅ Run only on client
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: "environment" } })
+        .then((stream) => {
+          // Stop stream immediately, just testing access
+          stream.getTracks().forEach((track) => track.stop());
+          setHasCamera(true);
+        })
+        .catch((err) => {
+          console.error("Camera access error:", err);
+          setHasCamera(false);
+        });
+    } else {
+      console.warn("Camera not supported in this browser");
+      setHasCamera(false);
+    }
+  }, []);
+
   const startScanner = () => {
     if (scannerRef.current && !isScanning) {
       Quagga.init(
@@ -14,17 +35,16 @@ export default function BarcodeScanner({ onScan }) {
           inputStream: {
             type: "LiveStream",
             target: scannerRef.current,
-            constraints: { facingMode: "environment" },
+            constraints: {
+              facingMode: "environment", // ✅ mobile back camera
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
           },
           decoder: {
-            readers: [
-              "code_128_reader",
-              "ean_reader",
-              "ean_8_reader",
-              "upc_reader",
-              "upc_e_reader",
-            ],
+            readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"],
           },
+          locate: true,
         },
         (err) => {
           if (err) {
@@ -37,11 +57,16 @@ export default function BarcodeScanner({ onScan }) {
       );
 
       Quagga.onDetected((data) => {
-        setResult({
-          code: data.codeResult.code,
-          format: data.codeResult.format,
-        });
-        onScan(data.codeResult.code);
+        if (data?.codeResult?.code) {
+          setResult({
+            code: data.codeResult.code,
+            format: data.codeResult.format,
+          });
+          onScan(data.codeResult.code);
+
+          // ✅ Optional: stop after first scan
+          stopScanner();
+        }
       });
     }
   };
@@ -54,6 +79,7 @@ export default function BarcodeScanner({ onScan }) {
     }
   };
 
+  // Cleanup
   useEffect(() => {
     return () => {
       if (isScanning) stopScanner();
@@ -99,39 +125,47 @@ export default function BarcodeScanner({ onScan }) {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Live Camera */}
+    <div className="flex flex-col items-center w-full max-w-3xl mx-auto">
+      {/* Scanner Box */}
       <div
         ref={scannerRef}
-        className="w-[400px] h-[300px] border border-gray-400"
-      />
+        className="relative w-full aspect-video max-h-[80vh] bg-black rounded-lg overflow-hidden"
+      >
+        {!hasCamera && (
+          <div className="absolute inset-0 flex items-center justify-center text-white bg-black/80 p-4 text-center">
+            <p>
+              Camera access is required. Please allow camera permission in your
+              browser settings.
+            </p>
+          </div>
+        )}
+      </div>
 
-      <div className="mt-4 flex gap-2">
+      {/* Controls */}
+      <div className="mt-4 flex gap-3 w-full justify-center">
         <button
           onClick={startScanner}
-          disabled={isScanning}
-          className="px-4 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+          disabled={isScanning || !hasCamera}
+          className="px-6 py-2 bg-emerald-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Start Scanner
+          {isScanning ? "Scanning..." : "Start Scanner"}
         </button>
         <button
           onClick={stopScanner}
           disabled={!isScanning}
-          className="px-4 py-2 bg-red-600 text-white rounded disabled:opacity-50"
+          className="px-6 py-2 bg-red-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Stop Scanner
         </button>
       </div>
 
-      {/* Image Upload */}
-      <div className="mt-6">
-        <input type="file" accept="image/*" onChange={handleFileUpload} />
-      </div>
-
+      {/* Result */}
       {result && (
-        <pre className="mt-4 p-2 bg-black text-white rounded w-[400px] overflow-x-auto">
-          {JSON.stringify(result, null, 2)}
-        </pre>
+        <div className="mt-4 w-full">
+          <pre className="p-3 bg-slate-800 text-slate-100 rounded-lg overflow-x-auto text-sm">
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        </div>
       )}
     </div>
   );

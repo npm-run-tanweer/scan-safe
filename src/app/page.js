@@ -18,6 +18,7 @@ import {
   SignOutButton,
   useUser,
 } from "@clerk/nextjs";
+import Auth from "./components/Auth";
 const Home = () => {
   // const { user, isProfileComplete, scanHistory } = useUser();
   const user = useUser();
@@ -67,7 +68,8 @@ const Home = () => {
     }, [userId]);
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pt-8 pb-24">
+    user.isSignedIn ? (
+      <div className="max-w-2xl mx-auto px-4 pt-8 pb-24">
       {/* Hero Section */}
       <div className="text-center mb-8">
         <div className="bg-gradient-to-br from-emerald-500 to-teal-600 w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center">
@@ -225,6 +227,9 @@ const Home = () => {
         </div>
       )} */}
     </div>
+    ) : (
+      <Auth/>
+    )
   );
 };
 

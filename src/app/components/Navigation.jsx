@@ -3,9 +3,11 @@ import React from "react";
 import { Home, User, Camera, History } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export const Navigation = () => {
   const pathname = usePathname(); // ✅ replaces location.pathname
+  const user = useUser();
 
   const navItems = [
     { path: "/", icon: Home, label: "Home" },
@@ -15,7 +17,8 @@ export const Navigation = () => {
   ];
 
   return (
-    <nav className="bg-white/90 backdrop-blur-md border-t border-emerald-100 fixed w-screen bottom-0 z-100">
+    user.isSignedIn && (
+      <nav className="bg-white/90 backdrop-blur-md border-t border-emerald-100 fixed w-screen bottom-0 z-100">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
@@ -44,5 +47,6 @@ export const Navigation = () => {
         </div>
       </div>
     </nav>
-  );
+    )
+  );  
 };
