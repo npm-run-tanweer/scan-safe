@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
     const { searchParams } = new URL(req.url);
     const clerkId = searchParams.get("user");
     console.log(clerkId)
-
+    
     if (!clerkId) {
       return NextResponse.json({ error: "Missing clerkId" }, { status: 400 });
     }

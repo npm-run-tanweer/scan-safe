@@ -33,13 +33,18 @@ export default function Scanner() {
   const [scans, setScans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [suggestedItems, setSuggestedItems] = useState([]);
-
   const user = useUser();
   const userId = user?.user?.id;
+
+  const baseUrl =
+  process.env.NODE_ENV === "development"
+    ? process.env.NEXT_PUBLIC_DEV_URL
+    : process.env.NEXT_PUBLIC_PROD_URL;
+    
   async function handleScan(barcode) {
     try {
       const res = await fetch(
-        `${process.env.PROD_URL}api/scan/${barcode}.json?user=${userId}`
+        `${baseUrl}/api/scan/${barcode}.json?user=${userId}`
       );
 
       if (!res.ok) {
@@ -54,7 +59,7 @@ export default function Scanner() {
   }
 
   const onScan = (code) => setBarcode(code);
-
+  console.log(barcode);
   useEffect(() => {
     if (barcode) {
       setIsLoading(true);
@@ -110,7 +115,7 @@ export default function Scanner() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          category: scannedProduct?.categories[0]
+          category: scannedProduct?.categories[0],
         }),
       });
       const data = await res.json();
@@ -269,7 +274,7 @@ export default function Scanner() {
                 </h4>
                 <div className="flex gap-3">
                   <Button
-                    onClick={() => setIsScannerOpen(true)}  
+                    onClick={() => setIsScannerOpen(true)}
                     variant="outline"
                     className="flex-1 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                   >
