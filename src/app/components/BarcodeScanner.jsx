@@ -167,6 +167,24 @@ export default function BarcodeScanner({ onScan }) {
           </pre>
         </div>
       )}
+
+      {/* Image Upload Alternative */}
+      <div className="mt-6 w-full">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-slate-200" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-slate-600">Or upload image</span>
+          </div>
+        </div>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileUpload}
+          className="mt-4 w-fit text-sm py-4 file:mr-4 file:py-4 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 mx-auto hover:file:bg-emerald-100 file:cursor-pointer"
+        />
+      </div>
     </div>
   );
 }
