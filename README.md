@@ -1,6 +1,6 @@
-#Scan&Safe#
+# Scan&Safe
 
-##Choosing safe packaged food is a daily struggle for millions of people who live with food allergies or chronic health conditions such as diabetes, celiac disease, and lactose intolerance. For them, every grocery trip carries hidden risks: a mislabeled ingredient, an overlooked sugar level, or an unfamiliar additive can have serious health consequences.##
+## Choosing safe packaged food is a daily struggle for millions of people who live with food allergies or chronic health conditions such as diabetes, celiac disease, and lactose intolerance. For them, every grocery trip carries hidden risks: a mislabeled ingredient, an overlooked sugar level, or an unfamiliar additive can have serious health consequences.
 
 For diabetics, consuming high-sugar or carbohydrate-rich foods can cause dangerous spikes in blood glucose.
 For celiac patients, even trace amounts of gluten may trigger severe digestive issues and long-term intestinal damage.
@@ -36,6 +36,6 @@ Security & Privacy
 Since users share sensitive health profiles, ensuring secure storage in MongoDB and implementing robust authentication/authorization workflows was critical to maintain trust.
 
 
-#Links#
+# Links
 http://65.20.74.168:3000/
 https://scan-safe-three.vercel.app/
